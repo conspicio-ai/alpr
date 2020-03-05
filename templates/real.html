@@ -1,0 +1,71 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Number_Plate</title>
+    <link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}">
+    <!-- <link rel="stylesheet" href="style_sheet.css"> -->
+</head>
+
+<body>
+    <div class="main">
+        <h1>Number Plate Detection</h1>
+    </div>
+    <div id="body">
+        <div class="container">
+            <h3>Entered</h3>
+            <table class="enter">
+                <tr>
+                    <th>Date</th>
+                    <th>Number</th>
+                    <th>Time</th>
+                </tr>
+            </table>
+
+            <div class="scroll_bar">
+
+                <table>
+                    {% for item in in_ %}
+                    <tr>
+                        <td>{{item['DATE']}}</td>
+                        <td>{{item['NUMBER']}}</td>
+                        <td>{{item['TIME']}}</td>
+                    </tr>
+                    {% endfor%}
+                </table>
+            </div>
+        </div>
+
+        <div class="exit-container">
+            <h3>Exit</h3>
+
+            <table class="exit">
+                <tr>
+                    <th id="first">Entry Date</th>
+                    <th>Exit Date</th>
+                    <th>Number</th>
+                    <th>Entry Time</th>
+                    <th id="last">Exit Time</th>
+                </tr>
+            </table>
+            
+            <div class="exit-scroll">
+
+                <table class="exit">
+                    {% for item in out_ %}
+                    <tr>
+                        <td>{{item['ENTRY DATE']}}</td>
+                        <td>{{item['EXIT DATE']}}</td>
+                        <td>{{item['NUMBER']}}</td>
+                        <td>{{item['ENTRY TIME']}}</td>
+                        <td>{{item['EXIT TIME']}}</td>
+                    </tr>
+                    {% endfor%}
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,108 @@
+.main{
+    background:blue;
+    text-align:center;
+    padding: 10px;
+    
+}
+h1{
+   font-size:3em;
+}
+h3{
+    font-size: 30;
+    padding: 0;
+}
+#body{
+    display: flex;
+    background-color: cadetblue;
+    height:80%;
+}
+
+.container{
+    margin: auto; 
+    text-align: center;
+    border:2px solid;
+    width:30%;
+    height:80%;
+    background-color: lightblue;
+    box-sizing: border-box;
+}
+.exit-container{
+    margin: auto; 
+    text-align: center;
+    border:2px solid;
+    width:50%;
+    height:80%;
+    background-color: lightblue;
+    box-sizing: border-box;
+}
+.scroll_bar{
+    margin: auto;
+    height: 65%;
+    width: 95%;
+    border: 2px blue solid;
+    overflow: scroll;
+    box-sizing: border-box;
+}
+.exit-scroll{
+    margin: auto;
+    height: 65%;
+    width: 98%;
+    border: 2px blue solid;
+    overflow: scroll;
+    box-sizing: border-box;
+}
+table{
+    margin:auto;
+    width:96%;
+}
+.enter th{
+    font-size: 20;
+    font-weight: bold;
+    text-decoration: underline;
+    text-align: right;
+    padding: 5px;
+    padding-right: 40px;
+    
+    
+}
+
+td{
+    text-align: right;
+    padding-top: 5px;
+    padding-right: 17px;
+}
+ 
+ .exit th{
+    font-size: 18;
+    font-weight: bold;
+    text-decoration: underline;
+    text-align: left;
+    padding:5px;
+    padding-left: 22px;
+    
+} 
+.exit td{
+    text-align: left;
+    padding-top: 5px;
+    padding-right: 25px;
+    padding-left: 35px;
+}
+ #last{
+    font-size: 18;
+    font-weight: bold;
+    text-decoration: underline;
+    text-align: left;
+    
+} 
+#first{
+    font-size: 18;
+    font-weight: bold;
+    text-decoration: underline;
+    text-align: right;
+    padding :5px;
+    padding-right: 16px;
+    padding-left: 16px;
+    
+} 
+
+

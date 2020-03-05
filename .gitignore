@@ -1,0 +1,5 @@
+/.ipynb_checkpoints/
+/__pycache__/
+saved_models/testing*
+*.avi
+/models/enet/__pycache__/
