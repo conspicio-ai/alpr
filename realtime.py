@@ -86,10 +86,12 @@ while(True) :
 		
 
 		#print(frame.shape, temp.shape)
-		original, thresh, ocr_detection = img2str(frame_untouched, resize_factor,temp)
-		print('Detected Text: ', ocr_detection)
-		if ocr_detection is not '' and ocr_detection not in detected_texts:
-			detected_texts.append(ocr_detection)
+		original, thresh, alphanumerics = img2str(frame_untouched, resize_factor,temp)
+		#print('Detected Text: ', ocr_detection)
+		#if ocr_detection is not '' and ocr_detection not in detected_texts:
+		#	detected_texts.append(ocr_detection)
+		print("FINAL ARRAY: ",alphanumerics)
+		print("PLEASE PASS THIS THROUGH EMNIST")
 		#cv2.imshow('original',original)
 		# original = cv2.resize(original,(segmented.shape[1],segmented.shape[0]))
 		#cv2.imshow('thresh', thresh)
