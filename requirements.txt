@@ -4,7 +4,4 @@ opencv-python
 imutils
 matplotlib
 pytesseract
-imutils
 tqdm
-Flask
-pymongo
