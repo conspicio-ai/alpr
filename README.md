@@ -43,6 +43,7 @@ The code was executed on Ubuntu 18.04 with Nvidia 1660Ti GPU. The current FPS ra
 - [ ] Car model prediction
 - [ ] Custom text detection and recognition
 - [ ] Hindi and non-standard OCR detection
+- [ ] Check Night mode 
 
 ### Future works
 If this work gets selected for future rounds of SIH'20 we have planned to add a series of features like
