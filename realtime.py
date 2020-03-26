@@ -14,9 +14,11 @@ from platedetect import *
 #cv2.namedWindow('segmentation_out',cv2.WINDOW_NORMAL)
 cv2.namedWindow('segmented',cv2.WINDOW_NORMAL)
 
-torch.cuda.set_device(0)
-print(torch.cuda.get_device_name(0))
-
+if torch.cuda.is_available():
+	torch.cuda.set_device(0)
+	print('Running on: ', torch.cuda.get_device_name(0))
+else
+	print("Running on: CPU")
 alpha = 0.3
 # mean = [0.28689554, 0.32513303, 0.28389177]
 # std = [0.18696375, 0.19017339, 0.18720214]
@@ -30,7 +32,8 @@ transform = transforms.Compose([
 
 net = ENet(num_classes = 1)
 net.load_state_dict(torch.load('saved_models/final_epoch9.pt', map_location = 'cpu'))
-net.cuda()
+if torch.cuda.is_available():
+	net.cuda()
 net.eval()
 
 video_test_path = input('Enter path to video: ')
@@ -63,7 +66,8 @@ while(True) :
 		# frame2 = cv2.resize(frame2, (338,600))
 		frame_pil = Image.fromarray(frame2)
 		frame_tf = transform(frame_pil)
-		frame_tf = frame_tf.cuda()
+		if torch.cuda.is_available():
+			frame_tf = frame_tf.cuda()
 		frame_tf = frame_tf.unsqueeze(0)
 		out = net(frame_tf)
 		

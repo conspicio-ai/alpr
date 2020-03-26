@@ -40,7 +40,7 @@ def imclearborder(imgBW, radius):
 
     # Given a black and white image, first find all of its contours
     imgBWcopy = imgBW.copy()
-    im2,contours,hierarchy = cv2.findContours(imgBWcopy.copy(), cv2.RETR_LIST, 
+    contours,hierarchy = cv2.findContours(imgBWcopy.copy(), cv2.RETR_LIST, 
         cv2.CHAIN_APPROX_SIMPLE)
 
     # Get dimensions of image
@@ -77,7 +77,7 @@ def imclearborder(imgBW, radius):
 def bwareaopen(imgBW, areaPixels):
     # Given a black and white image, first find all of its contours
     imgBWcopy = imgBW.copy()
-    im2,contours,hierarchy = cv2.findContours(imgBWcopy.copy(), cv2.RETR_LIST, 
+    contours,hierarchy = cv2.findContours(imgBWcopy.copy(), cv2.RETR_LIST, 
         cv2.CHAIN_APPROX_SIMPLE)
 
     # For each contour, determine its total occupying area
