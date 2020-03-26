@@ -194,7 +194,7 @@ def img2str(original,rf,img):
 		kernel = np.ones((3,3), np.uint8)
 		Iopen = cv2.morphologyEx(Iopen, cv2.MORPH_CLOSE, kernel)
 		#Iopen = cv2.morphologyEx(Iopen, cv2.MORPH_OPEN, kernel)
-		im2,cnts,hierarchy = cv2.findContours(Iopen,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+		cnts,hierarchy = cv2.findContours(Iopen,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
 		#cnts = imutils.grab_contours(cnts)
 		cnts = sorted(cnts, key = cv2.contourArea, reverse = True)
 		if len(cnts) != 0:
