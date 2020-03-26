@@ -3,7 +3,6 @@ import cv2
 from platedetect import *
 
 
-cv2.namedWindow('Original',cv2.WINDOW_NORMAL)
 def order_points(pts):
 	# initialzie a list of coordinates that will be ordered
 	# such that the first entry in the list is the top-left,

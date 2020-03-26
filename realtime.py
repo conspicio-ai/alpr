@@ -11,15 +11,19 @@ from helper import *
 from models.enet.model import *
 
 from platedetect import *
-#cv2.namedWindow('segmentation_out',cv2.WINDOW_NORMAL)
+
+video_test_path = input('Enter path to video: ')
+
+cv2.namedWindow('Original',cv2.WINDOW_NORMAL)
+cv2.namedWindow('plate',cv2.WINDOW_NORMAL)
 cv2.namedWindow('segmented',cv2.WINDOW_NORMAL)
+
 
 if torch.cuda.is_available():
 	torch.cuda.set_device(0)
 	print('Running on: ', torch.cuda.get_device_name(0))
 else:
-	print("Running on CPU")
-
+	print("Running on: CPU")
 alpha = 0.3
 # mean = [0.28689554, 0.32513303, 0.28389177]
 # std = [0.18696375, 0.19017339, 0.18720214]
@@ -37,7 +41,7 @@ if torch.cuda.is_available():
 	net.cuda()
 net.eval()
 
-video_test_path = input('Enter path to video: ')
+
 # video_test_path = '/home/himanshu/Downloads/2.mp4'
 cap = cv2.VideoCapture(video_test_path)
 # savePath =  "/home/himanshu/sih_number_plate/sem_seg_pytorch/thresh_imgs"
@@ -91,10 +95,12 @@ while(True) :
 		
 
 		#print(frame.shape, temp.shape)
-		original, thresh, ocr_detection = img2str(frame_untouched, resize_factor,temp)
-		print('Detected Text: ', ocr_detection)
-		if ocr_detection is not '' and ocr_detection not in detected_texts:
-			detected_texts.append(ocr_detection)
+		original, thresh, alphanumerics = img2str(frame_untouched, resize_factor,temp)
+		#print('Detected Text: ', ocr_detection)
+		#if ocr_detection is not '' and ocr_detection not in detected_texts:
+		#	detected_texts.append(ocr_detection)
+		print("FINAL ARRAY: ",alphanumerics)
+		print("PLEASE PASS THIS THROUGH EMNIST")
 		#cv2.imshow('original',original)
 		# original = cv2.resize(original,(segmented.shape[1],segmented.shape[0]))
 		#cv2.imshow('thresh', thresh)
