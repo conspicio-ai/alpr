@@ -6,7 +6,7 @@
 ### Installation guide for Ubuntu OS
 1. Clone this repository
 2. Change your directory `cd sih_number_plate`
-3. Make your virtual environment `virtualenv sih -p python3.6` (optional)
+3. Make your virtual environment `virtualenv sih -p python3` (optional)
 4. Activate the virtual environment `source sih/bin/activate` (optional)
 5. Install tesseract engine `sudo apt-get install tesseract-ocr`
 6. Install all dependencies `pip3 install -r requirements.txt` 
