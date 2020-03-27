@@ -29,7 +29,14 @@ def IoU(box1,box2):
 		return -1.0
 	else:
 		return iou
-	
+
+# image cropping using 2 tuples top left coordinates, bottom right coordinatess
+def image_crop_pad_resize(img,a,b,pad=15):
+	w,h = np.array(b)-np.array(a)
+	img = img[a[1]:a[1]+h, a[0]:a[0]+w]
+	img = cv2.copyMakeBorder( img, pad, pad, pad, pad, cv2.BORDER_CONSTANT,value=[0,0,0])
+	img = cv2.resize(img, (128,128))	
+	return img	
 
 def get_contour_precedence(contour,method = "left-to-right"):
 	boundingBoxes = [cv2.boundingRect(c) for c in contour]
@@ -128,7 +135,7 @@ def img2str(original,rf,img):
 		p1,p2,p3,p4 = box
 
 		# Contour detection for semantic segmented plate area
-		cv2.drawContours(original, [box], 0, (36,255,12), 4)
+		# cv2.drawContours(original, [box], 0, (36,255,12), 4)
 
 
 		pts = np.array([p1, p2, p3, p4], dtype = "float32")
@@ -242,7 +249,7 @@ def img2str(original,rf,img):
 			h0 = h		
 			i = i + 1
 			
-		return original, Iopen, alphanumerics
+		return original, Iopen, alphanumerics,Iclear
 		#cv2.imshow('Overall Result', Iopen)
 		#cv2.imshow('Original Image',original)
 		#cv2.waitKey(0)
