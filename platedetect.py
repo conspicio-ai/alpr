@@ -12,6 +12,7 @@ import scipy.fftpack
 #Setting the Indian Number Plate Format for filtering using Regular Expressions (regex)
 
 plate_format = '[A-Z]{2}.*[0-9]{2}.*[A-Z]{0,3}.*[0-9]{4}$'
+IOU_CONFIDENCE = 0.5
 
 #Function to filter irrelevent number plate detection strings that do not satisfy the expression
 def IoU(box1,box2):
@@ -192,7 +193,7 @@ def img2str(original,rf,img):
 		# Eliminate regions that have areas below 50 pixels
 		Iopen = bwareaopen(Iclear, 50)
 		kernel = np.ones((3,3), np.uint8)
-		Iopen = cv2.morphologyEx(Iopen, cv2.MORPH_CLOSE, kernel)
+		#Iopen = cv2.morphologyEx(Iopen, cv2.MORPH_CLOSE, kernel)
 		#Iopen = cv2.morphologyEx(Iopen, cv2.MORPH_OPEN, kernel)
 		cnts,hierarchy = cv2.findContours(Iopen,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
 		#cnts = imutils.grab_contours(cnts)
@@ -229,7 +230,7 @@ def img2str(original,rf,img):
 				cv2.rectangle(Iopen,(x,y),(x+w,y+h),(0,255,0),1)
 				alphanumerics = alphanumerics + [[(x,y),(x+w,y+h)]]
 			else:
-				if iou < 0.1:
+				if iou < IOU_CONFIDENCE:
 					cv2.rectangle(Iopen,(x,y),(x+w,y+h),(0,255,0),1)
 					alphanumerics = alphanumerics + [[(x,y),(x+w,y+h)]]
 				else:
@@ -260,4 +261,3 @@ def img2str(original,rf,img):
 	else:
 		return original, np.zeros((50,100)), 'Nothing found.'
 		
-
