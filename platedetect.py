@@ -97,7 +97,7 @@ def bwareaopen(imgBW, areaPixels):
     return imgBWcopy
 
 
-def plate_status(x):
+def plate_status_regex(x):
 	x = re.findall(plate_format,x,re.MULTILINE)
 	x =''.join(x)
 	x = re.sub('[^A-Za-z0-9]+', '', x)
@@ -108,9 +108,10 @@ def plate_status(x):
 # original - original feed, rf - resize_factor of the image, img - image on which semantic segmentation is applied
 def img2str(original,rf,img):
 	alphanumerics = []
+	Iclear = np.zeros((10,10))
+	Iopen  = np.zeros((10,10))
 	img = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
 	#clahe = cv2.createCLAHE(clipLimit = 2.0, tileGridSize = (8,8))
-
 	kernel = np.ones((5,5),np.uint8)
 
 	sh = img.shape
@@ -122,8 +123,8 @@ def img2str(original,rf,img):
 
 	#Contour detection for detecting the number plate area
 	contours,hierarchy = cv2.findContours(thresh,1,2)
-
 	if len(contours) >0:
+
 		c = max(contours, key=cv2.contourArea)
 		extLeft = tuple(c[c[:, :, 0].argmin()][0])
 		extRight = tuple(c[c[:, :, 0].argmax()][0])
@@ -196,6 +197,8 @@ def img2str(original,rf,img):
 
 		# Clear off the border.  Choose a border radius of 5 pixels
 		Iclear = imclearborder(Ithresh, 5)
+
+
 		#Iclear = Ithresh
 		# Eliminate regions that have areas below 50 pixels
 		Iopen = bwareaopen(Iclear, 50)
@@ -248,8 +251,8 @@ def img2str(original,rf,img):
 			w0 = w
 			h0 = h		
 			i = i + 1
-			
-		return original, Iopen, alphanumerics,Iclear
+
+		return original, Iopen, alphanumerics, Iclear #iclear is just returned for plate shape and number extraction without contours
 		#cv2.imshow('Overall Result', Iopen)
 		#cv2.imshow('Original Image',original)
 		#cv2.waitKey(0)
@@ -266,5 +269,5 @@ def img2str(original,rf,img):
 		#return original,thresh,text
 
 	else:
-		return original, np.zeros((50,100)), 'Nothing found.'
+		return original, np.zeros((50,100)), 'Nothing found.', np.zeros((50,100))
 		
