@@ -10,17 +10,19 @@
 4. Activate the virtual environment `source sih/bin/activate` (optional)
 5. Install tesseract engine `sudo apt-get install tesseract-ocr`
 6. Install all dependencies `pip3 install -r requirements.txt` 
-7. Make sure you have CUDA toolkit and Nvidia Drivers installed for best performance
+7. Make sure you have Nvidia Drivers installed for best performance
 
 *NOTE: The current code is running slow is due to Pytesseract computation. It will be replced by custom Text detector in future commits. This is going to increase the speed of network by 200%*
 
 ### How to run
-1. Run `python3 realtime.py`
-2. Give file name as input. Eg. `Enter path to video: /home/himanshu/Downloads/2.mp4`
-3. The detected number plate will be displayed on the terminal along with 3 other windows which will show original frame, segmented frame and License plate
+1. Download weights from this repo by running `git clone https://bitbucket.org/HiPatil30/emnist.git`
+2. Place this weight in root folder and delete cloned folder. (Deleting so that there aren't two git repos)
+3. This weight location is specified in `emnist_model.load_state_dict(torch.load("char_recognizer.pt"))` in `realtime.py`
+4. Run `python3 realtime.py`
+5. Give file name as input. Eg. `Enter path to video: /home/rohit/Downloads/2.mp4`
+6. The detected number plate will be displayed on the terminal along with 3 other windows which will show original frame, segmented frame and License plate
  
 ### Results
-
 Completely loading this gif may take several minutes. Please wait while its fully loaded or Download results.gif from repo.
 ![](result.gif)
 
@@ -40,10 +42,13 @@ The code was executed on Ubuntu 18.04 with Nvidia 1660Ti GPU. The current FPS ra
 - [ ] Multiclass segmentation of car, bikes, scooter, trucks, autorickshaw, etc 
 - [ ] Android App
 - [ ] Face recognition if visible
-- [ ] Car model prediction
+- [ ] Car model prediction if possible
 - [ ] Custom text detection and recognition
 - [ ] Hindi and non-standard OCR detection
 - [ ] Check Night mode 
+- [ ] Regex corrector by taking most frequent characters
+- [ ] Optimize by batch prediction
+- [ ] Retrain with only capital letters
 
 ### Future works
 If this work gets selected for future rounds of SIH'20 we have planned to add a series of features like
@@ -58,10 +63,10 @@ If this work gets selected for future rounds of SIH'20 we have planned to add a 
 ### Vehicle Number Plate Detection 
 
 ### How to run
-1. Import the ```final.py``` file in your code  
-2. For every entry of a vehicle call ```entryGate``` function with params: ```NUMBER,ENTRY_DATE,ENTRY_TIME,PHONE_NO,MESSAGE```
-3. For exit entry of a vehicle call ```exitGate``` function with params: ```NUMBER,EXIT_DATE,EXIT_TIME,GATE_NO,MESSAGE```
-3. To run the web-app call the function ```real``` from the ```final.py``` file
+1. Import the `final.py` file in your code  
+2. For every entry of a vehicle call `entryGate` function with params: `NUMBER,ENTRY_DATE,ENTRY_TIME,PHONE_NO,MESSAGE`
+3. For exit entry of a vehicle call `exitGate` function with params: `NUMBER,EXIT_DATE,EXIT_TIME,GATE_NO,MESSAGE`
+3. To run the web-app call the function `real` from the `final.py` file
 4. The detected number plate will be stored on the database with required ENTRY / EXIT conditions
 
 ### Built with
