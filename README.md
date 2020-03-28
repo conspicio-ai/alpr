@@ -32,15 +32,15 @@ The code was executed on Ubuntu 18.04 with Nvidia 1660Ti GPU. The current FPS ra
 ### Tasks
 - [x] Number Plate extraction and perspective correction in realtime
 - [x] OCR detection of number plate 
-- [x] Car type detection personal or commercial
-- [x] Car mask Extraction
-- [x] Web App UI
-- [x] Alert system
-- [x] Date and Time monitoring from multiple nodes
-- [x] Cloud Integration of Database
-- [x] Speed of vehicle
-- [x] IoT integration of multiple devices
-- [ ] Multiclass segmentation of car, bikes, scooter, trucks, autorickshaw, etc 
+- [ ] Car type detection personal or commercial
+- [ ] Car mask Extraction
+- [ ] Web App UI
+- [ ] Alert system
+- [ ] Date and Time monitoring from multiple nodes
+- [ ] Cloud Integration of Database
+- [ ] Speed of vehicle
+- [ ] IoT integration of multiple devices
+- [x] Multiclass segmentation of car, bikes, scooter, trucks, autorickshaw, etc 
 - [ ] Android App
 - [ ] Face recognition if visible
 - [ ] Car model prediction if possible
@@ -50,6 +50,7 @@ The code was executed on Ubuntu 18.04 with Nvidia 1660Ti GPU. The current FPS ra
 - [ ] Regex corrector by taking most frequent characters
 - [ ] Optimize by batch prediction
 - [ ] Retrain with only capital letters
+- [ ] Yolo exception handling (when no image)
 
 ### Future works
 If this work gets selected for future rounds of SIH'20 we have planned to add a series of features like
