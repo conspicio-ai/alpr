@@ -14,14 +14,14 @@ import torch
 
 
 
-def get_closest(box):
+def get_closest(box, labels):
     
     areas = []
 
     for x1, y1, x2, y2 in box:
         areas.append((x2-x1)*(y2-y1))
 
-    return box[areas.index(max(areas))]
+    return box[areas.index(max(areas))], labels[areas.index(max(areas))]
 
 
 def get_test_input(input_dim, CUDA):
@@ -97,7 +97,8 @@ def yolo_output(frame, model, your_class, CUDA, inp_dim, confidence=0.25, nms_th
     output[:,[2,4]] *= frame.shape[0]
 
     classes = load_classes('data/coco.names')
-    box = list([])
+    box = []
+    labels = []
 
     #This is where the magic happens
     list(map(lambda x: write(x, orig_im, classes, your_class), output))
@@ -107,5 +108,6 @@ def yolo_output(frame, model, your_class, CUDA, inp_dim, confidence=0.25, nms_th
             c1 = tuple(output[i,1:3].int())
             c2 = tuple(output[i,3:5].int())
             box.append([c1[0].item(),c1[1].item(), c2[0].item(),c2[1].item()])
+            labels.append(classes[int(output[i, -1])])
 
-    return orig_im, box
+    return orig_im, box, labels
