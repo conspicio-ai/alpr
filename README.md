@@ -15,7 +15,7 @@
 *NOTE: The current code is running slow is due to Pytesseract computation. It will be replced by custom Text detector in future commits. This is going to increase the speed of network by 200%*
 
 ### How to run
-1. Download weights (YoloV3) from `running wget https://pjreddie.com/media/files/yolov3.weights`
+1. Download weights (YoloV3) from running `wget https://pjreddie.com/media/files/yolov3.weights`
 1. Download weights (EMNIST) from this repo by running `git clone https://bitbucket.org/HiPatil30/emnist.git`
 2. Place this weight in root folder and delete cloned folder. (Deleting so that there aren't two git repos)
 3. This weight location is specified in `emnist_model.load_state_dict(torch.load("char_recognizer.pt"))` in `realtime.py`
