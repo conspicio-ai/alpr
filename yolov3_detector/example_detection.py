@@ -3,11 +3,11 @@ from custom_helper import *
 
 OUTPUT_SIZE = (1280,720)
 
-############Classes to detect
+############ Classes to detect
+############ Classes can be found at coco.names files
+
 CLASSES_TO_DETECT = ['bicycle', 'car', 'motorbike', 'truck']
 
-
-	
 
 if __name__ == '__main__':
 
@@ -28,7 +28,7 @@ if __name__ == '__main__':
 
 
 	
-	frame = cv2.imread("test.jpg")#Give the frame here
+	frame = cv2.imread("/home/rohit/Pictures/vlcsnap-2020-03-28-18h06m43s854.png") #Give the frame here
 	frame = cv2.resize(frame, OUTPUT_SIZE, interpolation = cv2.INTER_AREA)
 
 	img, coordinates = yolo_output(frame.copy(),model, CLASSES_TO_DETECT, CUDA, inp_dim)

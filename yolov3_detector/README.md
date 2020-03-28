@@ -2,6 +2,7 @@
 This project provides a modular function for object detection using YOLO-v3 Algorithm.
 
 ## Instructions:
+Download weights by running `wget https://pjreddie.com/media/files/yolov3.weights`
 Follow the ```example_detection.py``` script
 
 ## Dependencies:

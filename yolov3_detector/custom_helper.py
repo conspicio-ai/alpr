@@ -72,7 +72,7 @@ def write(x, img, classes, your_class):
         return img
 
 
-def yolo_output(frame, model, your_class, CUDA, inp_dim, confidence=0.25, nms_thesh=0.4):
+def yolo_output(frame, model, your_class, CUDA, inp_dim, names_file,confidence=0.25, nms_thesh=0.4):
     """
     Get the labeled image and the bounding box coordinates.
 
@@ -96,7 +96,7 @@ def yolo_output(frame, model, your_class, CUDA, inp_dim, confidence=0.25, nms_th
     output[:,[1,3]] *= frame.shape[1]
     output[:,[2,4]] *= frame.shape[0]
 
-    classes = load_classes('data/coco.names')
+    classes = load_classes(names_file)
     box = list([])
 
     #This is where the magic happens
