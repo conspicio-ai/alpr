@@ -1,3 +1,4 @@
+char_recognizer.pth
 */*.pyc
 char_recognizer.pt
 /sih/

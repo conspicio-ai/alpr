@@ -11,13 +11,13 @@ import time
 
 from helper import *
 from models.enet.model import *
-from models.emnist.model import *
+from models.emnist.model2 import *
 
 from custom_helper import *
 from platedetect import img2str,image_crop_pad_resize
 
 
-video_test_path = '/home/rohit/Videos/5.mp4' #input('Enter path to video: ')
+video_test_path = '/home/rohit/Videos/1.mp4' #input('Enter path to video: ')
 
 
 def single_letter_ocr(image,CUDA):
@@ -87,7 +87,7 @@ net = ENet(num_classes = 1)
 net.load_state_dict(torch.load('saved_models/final_epoch9.pt', map_location = 'cpu'))
 
 emnist_model = Net()
-emnist_model.load_state_dict(torch.load("char_recognizer.pt")) # download this weights using instructions given in README.md
+emnist_model.load_state_dict(torch.load("char_recognizer.pth")) # download this weights using instructions given in README.md
 
 if CUDA:
 	net.cuda()
@@ -156,7 +156,8 @@ while(True) :
 
 			detected_plate_info_string = '{}{} {}{} {}{} {}{}{}{}'.format(*detected_plate_info)
 
-			position = 2
+			## Change position value to see specific letter with padding
+			position = 4
 			cv2.imshow('',image_crop_pad_resize(dirty_plate_no_contour, alphanumerics[position][0],alphanumerics[position][1],pad =30))
 			print(detected_plate_info_string, closest_vehicle_label)
 
