@@ -15,13 +15,10 @@
 *NOTE: The current code is running slow is due to Pytesseract computation. It will be replced by custom Text detector in future commits. This is going to increase the speed of network by 200%*
 
 ### How to run
-1. Download weights (YoloV3) from running `wget https://pjreddie.com/media/files/yolov3.weights`
-1. Download weights (EMNIST) from this repo by running `git clone https://bitbucket.org/HiPatil30/emnist.git`
-2. Place this weight in root folder and delete cloned folder. (Deleting so that there aren't two git repos)
-3. This weight location is specified in `emnist_model.load_state_dict(torch.load("char_recognizer.pt"))` in `realtime.py`
-4. Run `python3 realtime.py`
-5. Give file name as input. Eg. `Enter path to video: /home/rohit/Downloads/2.mp4`
-6. The detected number plate will be displayed on the terminal along with 3 other windows which will show original frame, segmented frame and License plate
+1. Download weights (YoloV3) from running `wget -P yolov3_detector/ https://pjreddie.com/media/files/yolov3.weights`
+2. Run `python3 realtime.py`
+3. Give file name as input. (See Line 21 of `realtime.py`) Eg. `Enter path to video: /home/rohit/Downloads/2.mp4`
+4. The detected number plate will be displayed on the terminal along with 3 other windows which will show original frame, segmented frame and License plate
  
 ### Results
 Completely loading this gif may take several minutes. Please wait while its fully loaded or Download results.gif from repo.
@@ -64,7 +61,7 @@ If this work gets selected for future rounds of SIH'20 we have planned to add a 
 
 ### Vehicle Number Plate Detection 
 
-### How to run
+### How to run the app
 1. Import the `final.py` file in your code  
 2. For every entry of a vehicle call `entryGate` function with params: `NUMBER,ENTRY_DATE,ENTRY_TIME,PHONE_NO,MESSAGE`
 3. For exit entry of a vehicle call `exitGate` function with params: `NUMBER,EXIT_DATE,EXIT_TIME,GATE_NO,MESSAGE`
