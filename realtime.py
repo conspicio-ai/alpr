@@ -11,7 +11,8 @@ import time
 
 from helper import *
 from models.enet.model import *
-from models.emnist.model2 import *
+from models.emnist.model3 import *
+from models.mnist.mnist1 import *
 
 from custom_helper import *
 from platedetect import img2str,image_crop_pad_resize
@@ -19,20 +20,29 @@ from platedetect import img2str,image_crop_pad_resize
 
 video_test_path = '/home/rohit/Videos/1.mp4' #input('Enter path to video: ')
 
-
+num_class = 26
 def single_letter_ocr(image,CUDA):
-	idx = ['0','1','2','3','4','5','6','7','8','9',
-	   'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
-	   'a','b','d','e','f','g','h','n','q','r','t']
+	idx = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
 	trans = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0,), (1,))])
 	ip = trans(image)
-	ip = ip.reshape(1,1,128,128)
+	ip = ip.reshape(1,1,28,28)
 	if CUDA:
 		ip = ip.cuda()	
 	outputs_test = emnist_model(ip)
 	_, pred = torch.max(outputs_test.data, 1)
 	predx = pred.item()
 	return idx[predx]
+
+def single_digit_ocr(image,CUDA):
+	trans = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0,), (1,))])
+	ip = trans(image)
+	ip = ip.reshape(1,1,28,28)
+	if CUDA:
+		ip = ip.cuda()	
+	outputs_test = mnist_model(ip)
+	_, pred = torch.max(outputs_test.data, 1)
+	predx = pred.item()
+	return predx
 
 def yolo_detector(frame,CUDA,INPUT_SIZE = (1280,720)):
 	
@@ -86,16 +96,21 @@ inp_dim = int(yolo_model.net_info["height"])
 net = ENet(num_classes = 1)
 net.load_state_dict(torch.load('saved_models/final_epoch9.pt', map_location = 'cpu'))
 
-emnist_model = Net()
-emnist_model.load_state_dict(torch.load("char_recognizer.pth")) # download this weights using instructions given in README.md
+emnist_model = Net(26)
+emnist_model.load_state_dict(torch.load("saved_models/lighter_letter_recognizer_25.pth")) # download this weights using instructions given in README.md
+
+mnist_model = ConvNet(10)
+mnist_model.load_state_dict(torch.load("saved_models/cnn_mnist_retrained.pth"))
 
 if CUDA:
 	net.cuda()
 	emnist_model.cuda()
 	yolo_model.cuda()
+	mnist_model.cuda()
 
 net.eval()
 emnist_model.eval()
+mnist_model.eval()
 yolo_model.eval()
 
 cap = cv2.VideoCapture(video_test_path)
@@ -143,16 +158,25 @@ while(True) :
 		# print(temp.shape,frame_untouched.shape)
 		temp = cv2.resize(temp, (img_yolo.shape[1],img_yolo.shape[0]))
 		segmented = cv2.addWeighted(img_yolo, alpha, temp, (1 - alpha), 0.0)
-		original, thresh, alphanumerics,dirty_plate_no_contour = img2str(img_yolo, resize_factor,temp)
+		original, thresh, alphanumerics, dirty_plate_no_contour = img2str(img_yolo, resize_factor,temp)
 
 
 	################################# EMNIST #################################
 
 		if len(alphanumerics) == 10:
 			detected_plate_info = []
-			for cnt_box in alphanumerics:
-				cropped = image_crop_pad_resize(dirty_plate_no_contour, cnt_box[0],cnt_box[1],pad =30 )
-				detected_plate_info.append(single_letter_ocr(cropped,CUDA))
+			for i, cnt_box in enumerate(alphanumerics):
+			
+				cropped = image_crop_pad_resize(dirty_plate_no_contour, cnt_box[0],cnt_box[1],pad = 10 )
+				cropped = cv2.resize(cropped, (28,28))
+				# cv2.imshow('Images', cropped)
+				# cv2.waitKey(0)
+				# cv2.destroyAllWindows()
+				if (i==0) or (i==1) or (i==4) or (i==5):
+					detected_plate_info.append(single_letter_ocr(cropped,CUDA))
+				else:
+					detected_plate_info.append(single_digit_ocr(cropped,CUDA))
+
 
 			detected_plate_info_string = '{}{} {}{} {}{} {}{}{}{}'.format(*detected_plate_info)
 
