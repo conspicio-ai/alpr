@@ -17,6 +17,8 @@ import torch
 def get_closest(box, labels):
     
     areas = []
+    if len(box) == 0 or len(labels) == 0:  ###### This can be changes to return anything you want.
+        return None, None
 
     for x1, y1, x2, y2 in box:
         areas.append((x2-x1)*(y2-y1))
