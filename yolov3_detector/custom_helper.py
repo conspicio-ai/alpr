@@ -91,7 +91,7 @@ def yolo_output(frame, model, your_class, CUDA, inp_dim, coco_names,confidence=0
         img = img.cuda()
 
     output = model(Variable(img), CUDA)
-    output = write_results(output, confidence, num_classes, nms = True, nms_conf = nms_thesh)
+    output = write_results(output, confidence, num_classes, CUDA,nms = True, nms_conf = nms_thesh)
 
     output[:,1:5] = torch.clamp(output[:,1:5], 0.0, float(inp_dim))/inp_dim
 #            im_dim = im_dim.repeat(output.size(0), 1)

@@ -67,7 +67,7 @@ cfgfile = "yolov3_detector/cfg/yolov3.cfg"
 weightsfile = "yolov3_detector/yolov3.weights"
 names_file = "yolov3_detector/data/coco.names"
 
-CUDA = torch.cuda.is_available()
+CUDA = False # torch.cuda.is_available()
 alpha = 0.3
 mean = [0.485, 0.456, 0.406]
 std = [0.229, 0.224, 0.225]
