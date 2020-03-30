@@ -98,10 +98,10 @@ net = ENet(num_classes = 1)
 net.load_state_dict(torch.load('saved_models/final_epoch9.pt', map_location = 'cpu'))
 
 emnist_model = Net(26)
-emnist_model.load_state_dict(torch.load("saved_models/lighter_letter_recognizer_25.pth")) # download this weights using instructions given in README.md
+emnist_model.load_state_dict(torch.load("saved_models/lighter_letter_recognizer_25.pth", map_location = 'cpu')) # download this weights using instructions given in README.md
 
 mnist_model = ConvNet(10)
-mnist_model.load_state_dict(torch.load("saved_models/cnn_mnist_retrained.pth"))
+mnist_model.load_state_dict(torch.load("saved_models/cnn_mnist_retrained.pth", map_location = 'cpu'))
 
 if CUDA:
 	net.cuda()
