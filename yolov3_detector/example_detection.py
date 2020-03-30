@@ -4,7 +4,7 @@ from custom_helper import *
 OUTPUT_SIZE = (1280,720)
 
 ############Classes to detect
-CLASSES_TO_DETECT = ['bicycle', 'car', 'motorbike', 'truck', 'person', 'dog']
+CLASSES_TO_DETECT = ['bicycle', 'car', 'motorbike', 'truck']
 
 
 	
@@ -31,7 +31,8 @@ if __name__ == '__main__':
 	frame = cv2.imread("test.jpg")#Give the frame here
 	frame = cv2.resize(frame, OUTPUT_SIZE, interpolation = cv2.INTER_AREA)
 
-	img, coordinates, labels = yolo_output(frame.copy(),model, CLASSES_TO_DETECT, CUDA, inp_dim)
+	img, coordinates, labels = yolo_output(frame.copy(),model, CLASSES_TO_DETECT, CUDA, inp_dim, 'data/coco.names')
+
 	
 	closest_vehicle_coordinates, closest_vehicle_label = get_closest(coordinates, labels)
 	print(closest_vehicle_coordinates, closest_vehicle_label)
