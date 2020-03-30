@@ -3,6 +3,8 @@ char_recognizer.pth
 char_recognizer.pt
 /sih/
 /.ipynb_checkpoints/
+*/__pycache__
+*/__pycache__/*
 */__pycache__/
 yolov3_detector/__pycache__
 saved_models/testing*
