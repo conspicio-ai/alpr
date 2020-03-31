@@ -29,7 +29,8 @@ def IoU(box1,box2):
 		return -1.0
 	else:
 		return iou
-		
+	
+# Image cropping using 2 tuples top left coordinates, bottom right coordinates	
 def image_crop_pad_resize(img,a,b,pad=15):
 	w,h = np.array(b)-np.array(a)
 	img = img[a[1]:a[1]+h, a[0]:a[0]+w]
@@ -119,7 +120,7 @@ def bwareaopen(imgBW, areaPixels):
     return imgBWcopy
 
 
-def plate_status(x):
+def plate_status_regex(x):
 	x = re.findall(plate_format,x,re.MULTILINE)
 	x =''.join(x)
 	x = re.sub('[^A-Za-z0-9]+', '', x)
