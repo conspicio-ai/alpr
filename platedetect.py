@@ -13,7 +13,7 @@ import scipy.fftpack
 
 plate_format = '[A-Z]{2}.*[0-9]{2}.*[A-Z]{0,3}.*[0-9]{4}$'
 IOU_CONFIDENCE = 0.5
-
+ASPECT_RATIO_TOLERANCE = 4
 #Function to filter irrelevent number plate detection strings that do not satisfy the expression
 def IoU(box1,box2):
 	# Step 1: Finding the intersection area
@@ -29,14 +29,36 @@ def IoU(box1,box2):
 		return -1.0
 	else:
 		return iou
-
-# image cropping using 2 tuples top left coordinates, bottom right coordinatess
+		
 def image_crop_pad_resize(img,a,b,pad=15):
 	w,h = np.array(b)-np.array(a)
 	img = img[a[1]:a[1]+h, a[0]:a[0]+w]
 	img = cv2.copyMakeBorder( img, pad, pad, pad, pad, cv2.BORDER_CONSTANT,value=[0,0,0])
 	img = cv2.resize(img, (128,128))	
-	return img	
+	return img
+
+def percentage_pixel(img):
+	white = np.sum(img == 255)
+	black = np.sum(img == 0)
+	return (white/(white + black)) * 100
+
+# Color identification of the number plate using K means clustering
+def get_color(img):
+	hsv = cv2.cvtColor(img,cv2.COLOR_BGR2HSV)
+	
+	maskyellow = cv2.inRange(hsv, np.array([20,100,100],dtype = np.uint8), np.array([30,255,255], dtype = np.uint8))
+	peryellow = percentage_pixel(maskyellow)
+	
+	maskwhite = cv2.inRange(hsv, np.array([0,0,168],dtype = np.uint8), np.array([172,111,255], dtype = np.uint8))
+	perwhite = percentage_pixel(maskwhite)
+	
+	numberplate = {peryellow:'COMMERICIAL',perwhite:'PRIVATE'}
+	
+	if max(perwhite,peryellow) < 30:
+		return 'OTHER'
+	else:
+		return sorted(numberplate.items(), key = lambda x: x[0], reverse = True)[0][1]
+
 
 def get_contour_precedence(contour,method = "left-to-right"):
 	boundingBoxes = [cv2.boundingRect(c) for c in contour]
@@ -97,7 +119,7 @@ def bwareaopen(imgBW, areaPixels):
     return imgBWcopy
 
 
-def plate_status_regex(x):
+def plate_status(x):
 	x = re.findall(plate_format,x,re.MULTILINE)
 	x =''.join(x)
 	x = re.sub('[^A-Za-z0-9]+', '', x)
@@ -108,10 +130,9 @@ def plate_status_regex(x):
 # original - original feed, rf - resize_factor of the image, img - image on which semantic segmentation is applied
 def img2str(original,rf,img):
 	alphanumerics = []
-	Iclear = np.zeros((10,10))
-	Iopen  = np.zeros((10,10))
 	img = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
 	#clahe = cv2.createCLAHE(clipLimit = 2.0, tileGridSize = (8,8))
+
 	kernel = np.ones((5,5),np.uint8)
 
 	sh = img.shape
@@ -123,8 +144,8 @@ def img2str(original,rf,img):
 
 	#Contour detection for detecting the number plate area
 	contours,hierarchy = cv2.findContours(thresh,1,2)
-	if len(contours) >0:
 
+	if len(contours) >0:
 		c = max(contours, key=cv2.contourArea)
 		extLeft = tuple(c[c[:, :, 0].argmin()][0])
 		extRight = tuple(c[c[:, :, 0].argmax()][0])
@@ -136,16 +157,16 @@ def img2str(original,rf,img):
 		p1,p2,p3,p4 = box
 
 		# Contour detection for semantic segmented plate area
-		# cv2.drawContours(original, [box], 0, (36,255,12), 4)
+		#cv2.drawContours(original, [box], 0, (36,255,12), 4)
 
 
 		pts = np.array([p1, p2, p3, p4], dtype = "float32")
 
 		# Applying perspective transform to change the viewpoint of the number plate for more accurate detection
 		plate = four_point_transform(original,pts)
-		
-		#return plate
-		
+		numberplatetype = get_color(plate) # shall be thrown to realtime.py
+		#cv2.imshow('plateo',plate)
+		#print(numberplatetype)
 		# Applying FFT for number plate denoising (clipping using low and high pass filter with the required Gaussian Parameters
 		img = cv2.cvtColor(plate,cv2.COLOR_BGR2GRAY)
 		# Number of rows and columns
@@ -192,16 +213,14 @@ def img2str(original,rf,img):
 		Ihmf2 = np.array(255*Ihmf, dtype="uint8")
 
 		# Threshold the image - Anything below intensity 65 gets set to white
-		Ithresh = Ihmf2 < 65
+		Ithresh = Ihmf2 < 120
 		Ithresh = 255*Ithresh.astype("uint8")
 
 		# Clear off the border.  Choose a border radius of 5 pixels
 		Iclear = imclearborder(Ithresh, 5)
-
-
 		#Iclear = Ithresh
-		# Eliminate regions that have areas below 50 pixels
-		Iopen = bwareaopen(Iclear, 50)
+		# Eliminate regions that have areas below 40 pixels
+		Iopen = bwareaopen(Iclear, 60)
 		kernel = np.ones((3,3), np.uint8)
 		#Iopen = cv2.morphologyEx(Iopen, cv2.MORPH_CLOSE, kernel)
 		#Iopen = cv2.morphologyEx(Iopen, cv2.MORPH_OPEN, kernel)
@@ -220,39 +239,43 @@ def img2str(original,rf,img):
 			cnt = cnts[i]
 			if i == 0:
 				x0,y0,w0,h0 = cv2.boundingRect(cnts[0])
-				cv2.rectangle(Iopen,(x0,y0),(x0+w0,y0+h0),(0,255,0),1)
-				alphanumerics = alphanumerics + [[(x0,y0),(x0+w0,y0+h0)]]	
+				ar = max(w0,h0)/min(w0,h0)
+				if ar < ASPECT_RATIO_TOLERANCE:
+					cv2.rectangle(Iopen,(x0,y0),(x0+w0,y0+h0),(0,255,0),1)
+					alphanumerics = alphanumerics + [[(x0,y0),(x0+w0,y0+h0)]]	
 				i = i + 1
 				continue		
 			x,y,w,h = cv2.boundingRect(cnt)
 			#print(w*h)
 			iou = IoU((x0,y0,x0+w0,y0+h0),(x,y,x+w,y+h))
-			#print(iou)
-			#iou = 0.0
-			if iou == -1:
-				if (w0*h0) > (w*h):
-					i = i + 1
-					continue
-				else:
-					cv2.rectangle(Iopen,(x,y),(x+w,y+h),(0,255,0),1)
-					alphanumerics = alphanumerics + [[(x,y),(x+w,y+h)]]
-			elif iou == 0:
-				cv2.rectangle(Iopen,(x,y),(x+w,y+h),(0,255,0),1)
-				alphanumerics = alphanumerics + [[(x,y),(x+w,y+h)]]
-			else:
-				if iou < IOU_CONFIDENCE:
+			#print(w*h)
+			ar = max(w,h)/min(w,h)
+			#print(ar)
+			if ar < ASPECT_RATIO_TOLERANCE:
+				if iou == -1:
+					if (w0*h0) > (w*h):
+						i = i + 1
+						continue
+					else:
+						cv2.rectangle(Iopen,(x,y),(x+w,y+h),(0,255,0),1)
+						alphanumerics = alphanumerics + [[(x,y),(x+w,y+h)]]
+				elif iou == 0:
 					cv2.rectangle(Iopen,(x,y),(x+w,y+h),(0,255,0),1)
 					alphanumerics = alphanumerics + [[(x,y),(x+w,y+h)]]
 				else:
-					i = i + 1
-					continue
+					if iou < IOU_CONFIDENCE:
+						cv2.rectangle(Iopen,(x,y),(x+w,y+h),(0,255,0),1)
+						alphanumerics = alphanumerics + [[(x,y),(x+w,y+h)]]
+					else:
+						i = i + 1
+						continue
 			x0 = x
 			y0 = y
 			w0 = w
 			h0 = h		
 			i = i + 1
-
-		return original, Iopen, alphanumerics, Iclear #iclear is just returned for plate shape and number extraction without contours
+			
+		return original, Iopen, alphanumerics, Iclear, numberplatetype
 		#cv2.imshow('Overall Result', Iopen)
 		#cv2.imshow('Original Image',original)
 		#cv2.waitKey(0)
@@ -269,5 +292,5 @@ def img2str(original,rf,img):
 		#return original,thresh,text
 
 	else:
-		return original, np.zeros((50,100)), 'Nothing found.', np.zeros((50,100))
+		return original, np.zeros((50,100)), 'Nothing found.', np.zeros((50,100)), 'Nothing found.'
 		

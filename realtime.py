@@ -161,7 +161,7 @@ while(True) :
 			# print(temp.shape,frame_untouched.shape)
 			temp = cv2.resize(temp, (img_yolo.shape[1],img_yolo.shape[0]))
 			segmented = cv2.addWeighted(img_yolo, alpha, temp, (1 - alpha), 0.0)
-			original, thresh, alphanumerics, dirty_plate_no_contour = img2str(img_yolo, resize_factor,temp)
+			original, thresh, alphanumerics, dirty_plate_no_contour, vehicle_type = img2str(img_yolo, resize_factor,temp)
 
 
 		################################# EMNIST #################################
@@ -184,7 +184,7 @@ while(True) :
 				position = 2
 				cv2.imshow('',image_crop_pad_resize(dirty_plate_no_contour, alphanumerics[position][0],alphanumerics[position][1],pad =12))
 				print(detected_plate_info_string, closest_vehicle_label)
-
+				print('VEHICLE TYPE: ',vehicle_type)
 		################################# FPS+IMSHOWS #################################
 
 
