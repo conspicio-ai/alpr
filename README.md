@@ -123,6 +123,10 @@ Total: 10000 images, Sample dataset link: *Yet to be annotated*
 #### The Street View House Numbers (SVHN) Dataset
 Total: 73257 images, Sample dataset link: [Click Here](http://ufldl.stanford.edu/housenumbers/)
 
+#### EMNIST
+Total: 100,000+ images of handwritten letters and digits. 
+
+
 ### Contributers
 - Rohit Lal 
 - Himanshu Patil
