@@ -3,7 +3,8 @@
 
 <img src="images/Falcon_Vision_logo.jpg" width="500" height="500">
 For indpeth solutions, features, future works, revenue plan, etc please read the PDF attached.
-[Click Here](https://drive.google.com/file/d/1vmh-XKHFDTIsHa2YLfEPrvajIMPPD67C/view?usp=sharing)
+
+ [Click here](https://drive.google.com/file/d/1vmh-XKHFDTIsHa2YLfEPrvajIMPPD67C/view?usp=sharing)
 
 ### Installation guide for Ubuntu OS
 1. Clone this repository
