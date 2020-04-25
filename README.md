@@ -1,5 +1,5 @@
 # Number Plate Detection
-![](images/Falcon_Vision_logo.jpg | width=100)
+![](images/Falcon_Vision_logo.jpg =100)
 [![Build Status](https://travis-ci.org/joemccann/dillinger.svg?branch=master)](https://travis-ci.org/joemccann/dillinger)
 
 **For indpeth solutions, features, future works, revenue plan, etc please read the PDF attached. [Click Here](https://drive.google.com/file/d/1vmh-XKHFDTIsHa2YLfEPrvajIMPPD67C/view?usp=sharing)**
