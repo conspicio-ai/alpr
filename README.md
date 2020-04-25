@@ -1,7 +1,7 @@
 # Number Plate Detection
 [![Build Status](https://travis-ci.org/joemccann/dillinger.svg?branch=master)](https://travis-ci.org/joemccann/dillinger)
-<img src="images/Falcon_Vision_logo.jpg" width="100" height="100">
 
+<div style="text-align:center"><img src="images/Falcon_Vision_logo.jpg" width="500" height="500"></div>
 **For indpeth solutions, features, future works, revenue plan, etc please read the PDF attached. [Click Here](https://drive.google.com/file/d/1vmh-XKHFDTIsHa2YLfEPrvajIMPPD67C/view?usp=sharing)**
 
 ### Installation guide for Ubuntu OS
