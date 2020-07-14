@@ -4,6 +4,7 @@ from tool.darknet2pytorch import Darknet as DarknetYolov4
 import argparse
 import cv2,time
 
+from tool.plateprocessing import *
 from tool.utils import *
 from tool.torch_utils import *
 
@@ -20,7 +21,7 @@ print('Loading weights from %s... Done!' % (weight_v4))
 if use_cuda:
     m.cuda()
 
-cap = cv2.VideoCapture('1.mp4')
+cap = cv2.VideoCapture('/content/drive/My Drive/YOLOv4/Results/1.mp4')
 # cap = cv2.VideoCapture("./test.mp4")
 cap.set(3, 1280)
 cap.set(4, 720)
@@ -39,6 +40,7 @@ while True:
     boxes = do_detect(m, sized, 0.4, 0.6, use_cuda)
     finish = time.time()
     print('Predicted in %f seconds.' % (finish - start))
+    plate_emnist = plate_detect(img, boxes[0])
 
     result_img = plot_boxes_cv2(img, boxes[0], savename=False, class_names=class_names)
     cv2.imshow('Yolo demo', result_img)
