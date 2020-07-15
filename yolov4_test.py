@@ -40,7 +40,8 @@ while True:
     boxes = do_detect(m, sized, 0.4, 0.6, use_cuda)
     finish = time.time()
     print('Predicted in %f seconds.' % (finish - start))
-    plate_emnist = plate_detect(img, boxes[0])
+    # digitbox has numbers arranged as np.array([[x1, y1, x2, y2],[x1', y1', x2', y2'],...]). If not detected, we get empty array. The ordering is from left to right and top to bottom. 
+    plate_emnist, digitbox = plate_detect(img, boxes[0], drawplates = False, areathresh = 500)
 
     result_img = plot_boxes_cv2(img, boxes[0], savename=False, class_names=class_names)
     cv2.imshow('Yolo demo', result_img)
