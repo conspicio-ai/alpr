@@ -1,6 +1,27 @@
 import cv2
 import numpy as np
 
+def find_boxes(thresh, drawplates, areathresh):
+	total, labels, boxes, centroids = cv2.connectedComponentsWithStats(thresh, 8, cv2.CV_32S)
+	if total > 1:
+		if drawplates:
+			thresh = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
+		cc = np.empty((0,4))
+		i = 0
+		while(i < total):
+			x1 = boxes[i][0]
+			y1 = boxes[i][1]
+			x2 = x1 + boxes[i][2]
+			y2 = y1 + boxes[i][3]
+			if boxes[i][4] < areathresh:
+				cc = np.append(cc, np.array([[x1,y1,x2,y2]]), axis = 0)
+				if drawplates:
+					cv2.rectangle(thresh, (x1, y1), (x2, y2), (0,0,255), 1)	
+			i = i + 1
+		return thresh, cc
+	else:
+		return thresh, np.empty((0,4))
+
 def find_coordinates(img, boxes):
     width = img.shape[1]
     height = img.shape[0]
@@ -60,13 +81,7 @@ def four_point_transform(image, pts):
 
 
 
-#cap = cv2.VideoCapture('/home/arihant/Downloads/1.mp4')
-
-#locfile = open('locations.txt','r')
-
-#coor = locfile.readlines()
-
-def plate_detect(frame, boxes):
+def plate_detect(frame, boxes, drawplates, areathresh):
 	rf = 1
 	kernel = np.ones((5,5),np.uint8)
 
@@ -88,7 +103,11 @@ def plate_detect(frame, boxes):
 	thresh = cv2.morphologyEx(thresh,cv2.MORPH_OPEN,kernel)
 
 	#Contour detection for detecting the number plate area
-	x, contours,hierarchy = cv2.findContours(thresh,1,2)
+	if (int(cv2.__version__[0]) < 4):
+		x, contours, hierarchy = cv2.findContours(thresh, 1, 2)
+	else:
+		contours, hierarchy = cv2.findContours(thresh, 1, 2)
+		
 	if len(contours) >0:
 
 		c = max(contours, key=cv2.contourArea)
@@ -108,5 +127,14 @@ def plate_detect(frame, boxes):
 		
 		imgg = cv2.cvtColor(plate, cv2.COLOR_BGR2GRAY)
 		ret, thresh = cv2.threshold(imgg, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
-	return thresh
+		thresh = cv2.medianBlur(thresh, 3)
+		
+		thresh, digitbox = find_boxes(thresh, drawplates, areathresh)
+	return thresh, digitbox
+	
+#cap = cv2.VideoCapture('/home/arihant/Downloads/1.mp4')
+
+#locfile = open('/home/arihant/sih_number_plate-master1/locations.txt','r')
+
+#coor = locfile.readline()
 
