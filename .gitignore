@@ -3,11 +3,15 @@ char_recognizer.pth
 char_recognizer.pt
 /sih/
 /.ipynb_checkpoints/
-*/__pycache__
-*/__pycache__/*
 */__pycache__/
+*/__pycache__/*
+__pycache__
 yolov3_detector/__pycache__
 saved_models/testing*
 *.avi
+*.mp4
+*.weights
 /models/enet/__pycache__/
 /models/emnist/__pycache__/
+yolov3_detector/__pycache__/*
+/.vscode/
