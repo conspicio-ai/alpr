@@ -6,15 +6,16 @@ def find_boxes(thresh, drawplates, areathresh):
 	if total > 1:
 		if drawplates:
 			thresh = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
-		cc = np.empty((0,4))
+		cc = []
 		i = 0
 		while(i < total):
-			x1 = boxes[i][0]
-			y1 = boxes[i][1]
-			x2 = x1 + boxes[i][2]
-			y2 = y1 + boxes[i][3]
+			x1 = int(boxes[i][0])
+			y1 = int(boxes[i][1])
+			x2 = x1 + int(boxes[i][2])
+			y2 = y1 + int(boxes[i][3])
 			if boxes[i][4] < areathresh:
-				cc = np.append(cc, np.array([[x1,y1,x2,y2]]), axis = 0)
+				#cc = np.append(cc, np.array([[x1,y1,x2,y2]]), axis = 0)
+				cc = cc + [thresh[y1:y2,x1:x2]]
 				if drawplates:
 					cv2.rectangle(thresh, (x1, y1), (x2, y2), (0,0,255), 1)	
 			i = i + 1
@@ -83,7 +84,8 @@ def four_point_transform(image, pts):
 
 def plate_detect(frame, boxes, drawplates, areathresh):
 	rf = 1
-	kernel = np.ones((5,5),np.uint8)
+	#kernel = np.ones((5,5),np.uint8)
+	kernel = np.array([[1,2,1],[2,4,2],[1,2,1]], dtype = np.uint8)/16
 
 	x1, y1, x2, y2 = find_coordinates(frame, boxes)
 	if x1 == 0 and x2 == 0 and y1 == 0 and y2 == 0:
@@ -128,8 +130,11 @@ def plate_detect(frame, boxes, drawplates, areathresh):
 		imgg = cv2.cvtColor(plate, cv2.COLOR_BGR2GRAY)
 		ret, thresh = cv2.threshold(imgg, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
 		thresh = cv2.medianBlur(thresh, 3)
+		thresh = cv2.bilateralFilter(thresh, 15, 75, 75)
 		
 		thresh, digitbox = find_boxes(thresh, drawplates, areathresh)
+		
+
 	return thresh, digitbox
 	
 #cap = cv2.VideoCapture('/home/arihant/Downloads/1.mp4')
