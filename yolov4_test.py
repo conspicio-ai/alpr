@@ -41,7 +41,13 @@ while True:
     finish = time.time()
     print('Predicted in %f seconds.' % (finish - start))
     # digitbox consists of image segment for each digit, which can be accessed as digitbox[i], where 'i' is the index of an element
-    plate_emnist, digitbox = plate_detect(img, boxes[0], drawplates = False, maxareathresh = 500, minareathresh = 10)
+    if(len(boxes[0]) > 0):
+        try:
+            plate_emnist, digitbox = plate_detect(img, boxes[0], drawplates = False, maxareathresh = 500, minareathresh = 10)
+        except:
+            continue
+    else:
+        continue
 
     result_img = plot_boxes_cv2(img, boxes[0], savename=False, class_names=class_names)
     cv2.imshow('Yolo demo', result_img)

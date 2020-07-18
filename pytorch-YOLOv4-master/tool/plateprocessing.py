@@ -85,6 +85,7 @@ def find_boxes(thresh, drawplates, maxareathresh, minareathresh):
 			i = i + 1
 		idx = np.argsort(centroid)
 		cc = np.array(cc)[idx]
+		print(len(idx), len(centroid))
 		#centroid = np.array(centroid)[idx]
 		return thresh, cc
 	else:
