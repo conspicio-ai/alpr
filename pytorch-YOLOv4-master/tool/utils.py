@@ -96,7 +96,7 @@ def nms_cpu(boxes, confs, nms_thresh=0.5, min_mode=False):
 
 
 
-def plot_boxes_cv2(img, boxes, savename=None, class_names=None, color=None):
+def plot_boxes_cv2(img, boxes, fontScale=0.5,thick=1.2,savename=None, class_names=None, color=None):
     import cv2
     img = np.copy(img)
     colors = np.array([[1, 0, 1], [0, 0, 1], [0, 1, 1], [0, 1, 0], [1, 1, 0], [1, 0, 0]], dtype=np.float32)
@@ -133,12 +133,36 @@ def plot_boxes_cv2(img, boxes, savename=None, class_names=None, color=None):
             blue = get_color(0, offset, classes)
             if color is None:
                 rgb = (red, green, blue)
-            img = cv2.putText(img, class_names[cls_id], (x1, y1), cv2.FONT_HERSHEY_SIMPLEX, 1.2, rgb, 1)
+            img = cv2.putText(img, class_names[cls_id], (x1, y1), cv2.FONT_HERSHEY_SIMPLEX, fontScale, rgb, thick)
         img = cv2.rectangle(img, (x1, y1), (x2, y2), rgb, 1)
     if savename:
         print("save plot results to %s" % savename)
         cv2.imwrite(savename, img)
     return img
+
+
+def alphanumeric_segemntor(img, boxes,class_names=None):
+
+    alphanumeric,x_c_list,y_c_list = [], [],[]
+    width = img.shape[1]
+    height = img.shape[0]
+    for i in range(len(boxes)):
+        box = boxes[i]
+        x1 = int((box[0] - box[2] / 2.0) * width)
+        y1 = int((box[1] - box[3] / 2.0) * height)
+        x2 = int((box[0] + box[2] / 2.0) * width)
+        y2 = int((box[1] + box[3] / 2.0) * height)
+
+        x_c = (x1 + x2) / 2
+        y_c = (y1 + y2) / 2
+        if len(box) >= 7 and class_names:
+            cls_conf = box[5]
+            cls_id = box[6]
+        # Dictonary for stroing image and its label 
+        alphanumeric.append([class_names[cls_id],img[y1:y2,x1:x2,:]])
+        x_c_list.append(x_c)
+        y_c_list.append(y_c)
+    return alphanumeric, x_c_list,y_c_list
 
 
 def read_truths(lab_path):
