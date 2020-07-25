@@ -9,6 +9,67 @@ from tool.plateprocessing import find_coordinates, plate_detect
 from tool.utils import alphanumeric_segemntor,plot_boxes_cv2
 from tool.torch_utils import *
 
+
+def findstring(elements, threshold):
+	elements.sort(key = lambda x: x[1])
+	upper = ''
+	lower = ''
+	sd = 0
+	if abs(elements[0][1] - elements[-1][1]) < threshold:
+		print('Single Line Case')
+		sd = 0
+	else:
+		print('Double Line Case')
+		sd = 1
+	if sd == 0:
+		elements.sort(key = lambda x: x[0])
+		for element in elements:
+			upper = upper + element[2]
+		return upper
+	else:
+		av = (elements[0][1] + elements[-1][1])/2
+		elements.sort(key = lambda x: x[0])
+		
+		#print(av)
+		#print(elements)
+		for element in elements:
+			#print(element[1])
+			if element[1] < av:
+				upper = upper + element[2]
+			else:
+				lower = lower + element[2]
+		return upper + lower
+
+
+def plate_to_string(x_c, y_c, line):
+	olist = list(zip(x_c, y_c, line))
+	olist.sort(key = lambda x:x[0])
+	if len(olist) > 1:
+		if olist[0][1] < olist[1][1]:
+			x_1 = olist[1][0]
+			y_1 = olist[1][1]
+		else:
+			x_1 = olist[0][0]
+			y_1 = olist[0][1]
+		if olist[-1][1] < olist[-2][1]:
+			x_2 = olist[-2][0]
+			y_2 = olist[-2][1]
+		else:
+			x_2 = olist[-1][0]
+			y_2 = olist[-1][1]
+		if x_2 - x_1 != 0:	
+			theta = np.arctan((y_1 - y_2)/(x_2 - x_1))
+			rot = np.array([[np.cos(theta), -np.sin(theta)],[np.sin(theta), np.cos(theta)]])
+			olistnew = rotate(olist, rot)
+			olistnew.sort(key = lambda x: x[0])
+			plate = findstring(olistnew, threshold = 3)
+			print('Plate = ',plate)
+			return plate
+		else:
+			return "N/A"
+	else:
+		return "N/A"
+
 use_cuda = True
 #################### PLATE ####################
 
@@ -76,12 +137,15 @@ while True:
 		alphanumerics,x_c_list,y_c_list = alphanumeric_segemntor(plate_bb, boxes[0],class_names=class_names_alpha)
 
 		## Sort plate on basis of x axis
-		x_c_sort_idx = np.argsort(x_c_list)
+		x_c_sort_idx = np.sort(np.argsort(x_c_list))
 		arranged_plate = ''
+		char_list = []
 		for count, idx in enumerate(x_c_sort_idx):
 			detected_letter, digit_img = alphanumerics[idx][0], alphanumerics[idx][1]
 			# cv2.imshow(f'{count}. It seems like {detected_letter}',digit_img) #SHOW INDIVIDUAL 
-			arranged_plate = arranged_plate+detected_letter
+			char_list = char_list + [detected_letter]
+			#arranged_plate = arranged_plate+detected_letter
+		arranged_plate = plate_to_string(x_c_list, y_c_list, char_list)
 		print('The number Plate is: ', arranged_plate)
 
 	else:
