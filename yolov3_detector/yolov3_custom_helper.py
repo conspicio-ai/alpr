@@ -12,6 +12,24 @@ import time
 import torch
 
 
+def yolo_detector(frame,CUDA,yolo_vehicle,names_file_yolov3, INPUT_SIZE = (1280,720)):
+    
+    CLASSES_TO_DETECT = ['bicycle', 'car', 'motorbike', 'truck']
+    
+    frame = cv2.resize(frame, INPUT_SIZE, interpolation = cv2.INTER_AREA)
+    inp_dim = int(yolo_vehicle.net_info["height"])
+    
+    img, coordinates,labels = yolo_output(frame.copy(),yolo_vehicle, CLASSES_TO_DETECT, CUDA, 
+        inp_dim, names_file_yolov3, confidence=0.21, nms_thesh=0.41)
+    
+    closest_vehicle_coord, closest_vehicle_label = get_closest(coordinates, labels)
+    if closest_vehicle_coord is not None:
+        h_yolo, w_yolo = closest_vehicle_coord[3] - closest_vehicle_coord[1], closest_vehicle_coord[2]-closest_vehicle_coord[0]
+        img = frame[closest_vehicle_coord[1]:closest_vehicle_coord[1]+h_yolo,closest_vehicle_coord[0]:closest_vehicle_coord[0]+w_yolo]
+
+        return img,closest_vehicle_label
+    else:
+        return np.zeros((100,100)), None
 
 
 def get_closest(box, labels):

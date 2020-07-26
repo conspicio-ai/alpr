@@ -2,6 +2,104 @@ import cv2
 import numpy as np
 import scipy.fftpack
 
+def percentage_pixel(img):
+	white = np.sum(img == 255)
+	black = np.sum(img == 0)
+	return (white/(white + black)) * 100
+	
+# Color identification of the number plate using K means clustering
+def get_color(img):
+	hsv = cv2.cvtColor(img,cv2.COLOR_BGR2HSV)
+
+	maskyellow = cv2.inRange(hsv, np.array([20,100,100],dtype = np.uint8), np.array([30,255,255], dtype = np.uint8))
+	peryellow = percentage_pixel(maskyellow)
+
+	maskwhite = cv2.inRange(hsv, np.array([0,0,168],dtype = np.uint8), np.array([172,111,255], dtype = np.uint8))
+	perwhite = percentage_pixel(maskwhite)
+
+	numberplate = {peryellow:'COMMERICIAL',perwhite:'PRIVATE'}
+
+	if max(perwhite,peryellow) < 30:
+		return 'OTHER'
+	else:
+		return sorted(numberplate.items(), key = lambda x: x[0], reverse = True)[0][1]
+
+def rotate(olist, rot):
+	olistnew = []
+	for element in olist:
+		x,y,c = element[0], element[1], element[2]
+		templist = np.array([[element[0]], [element[1]]])
+		templist = np.matmul(rot, templist)
+		x = templist[0][0]
+		y = templist[1][0]
+		olistnew = olistnew + [(x,y,c)]
+	return olistnew
+
+def findstring(elements, threshold):
+	elements.sort(key = lambda x: x[1])
+	upper = ''
+	lower = ''
+	sd = 0
+	if abs(elements[0][1] - elements[-1][1]) < threshold:
+		print('Single Line Case')
+		sd = 0
+	else:
+		print('Double Line Case')
+		sd = 1
+	if sd == 0:
+		elements.sort(key = lambda x: x[0])
+		for element in elements:
+			upper = upper + element[2]
+		return upper
+	else:
+		av = (elements[0][1] + elements[-1][1])/2
+		elements.sort(key = lambda x: x[0])
+		
+		#print(av)
+		#print(elements)
+		for element in elements:
+			#print(element[1])
+			if element[1] < av:
+				upper = upper + element[2]
+			else:
+				lower = lower + element[2]
+		return upper + lower
+
+def plate_to_string(x_c, y_c, line):
+	olist = list(zip(x_c, y_c, line))
+	olist.sort(key = lambda x:x[0])
+	if len(olist) > 1:
+		if olist[0][1] < olist[1][1]:
+			x_1 = olist[1][0]
+			y_1 = olist[1][1]
+		else:
+			x_1 = olist[0][0]
+			y_1 = olist[0][1]
+		if olist[-1][1] < olist[-2][1]:
+			x_2 = olist[-2][0]
+			y_2 = olist[-2][1]
+		else:
+			x_2 = olist[-1][0]
+			y_2 = olist[-1][1]
+		if x_2 - x_1 != 0:	
+			theta = np.arctan((y_1 - y_2)/(x_2 - x_1))
+			rot = np.array([[np.cos(theta), -np.sin(theta)],[np.sin(theta), np.cos(theta)]])
+			olistnew = rotate(olist, rot)
+			olistnew.sort(key = lambda x: x[0])
+			plate = findstring(olistnew, threshold = 3)
+			print('Plate = ',plate)
+			return plate
+		else:
+			return "N/A"
+	else:
+		return "N/A"
+
+def padder(h,w,im):
+	black = np.zeros((h,w,3),dtype=np.uint8)
+	im_h,im_w = im.shape[0] , im.shape[1]
+	black[:im_h,:im_w,:] = im
+	return black
+
 def imclearborder(imgBW, radius):
 
     # Given a black and white image, first find all of its contours
