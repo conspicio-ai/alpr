@@ -12,25 +12,52 @@ import time
 import torch
 
 
-def yolo_detector(frame,CUDA,yolo_vehicle,names_file_yolov3, INPUT_SIZE = (1280,720)):
+def yolo_detector(frame,CUDA,yolo_vehicle,names_file, INPUT_SIZE = (1280,720)):
     
     CLASSES_TO_DETECT = ['bicycle', 'car', 'motorbike', 'truck']
     
     frame = cv2.resize(frame, INPUT_SIZE, interpolation = cv2.INTER_AREA)
     inp_dim = int(yolo_vehicle.net_info["height"])
-    
+
     img, coordinates,labels = yolo_output(frame.copy(),yolo_vehicle, CLASSES_TO_DETECT, CUDA, 
-        inp_dim, names_file_yolov3, confidence=0.21, nms_thesh=0.41)
+        inp_dim, names_file, confidence=0.21, nms_thesh=0.41)
     
     closest_vehicle_coord, closest_vehicle_label = get_closest(coordinates, labels)
     if closest_vehicle_coord is not None:
-        h_yolo, w_yolo = closest_vehicle_coord[3] - closest_vehicle_coord[1], closest_vehicle_coord[2]-closest_vehicle_coord[0]
-        img = frame[closest_vehicle_coord[1]:closest_vehicle_coord[1]+h_yolo,closest_vehicle_coord[0]:closest_vehicle_coord[0]+w_yolo]
+        x1,x2 = closest_vehicle_coord[1], closest_vehicle_coord[3]
+        y1,y2 = closest_vehicle_coord[0], closest_vehicle_coord[2]
+        h_yolo, w_yolo = x2 - x1, y2-y1
+        img = frame[x1:x1+h_yolo,y1:y1+w_yolo]
 
-        return img,closest_vehicle_label
+        print((x1,y1), (x2,y2))
+        cv2.rectangle(frame,(y1,x1), (y2,x2),[255,0,0], thickness = 3)
+        return frame, img, closest_vehicle_label
+    
     else:
-        return np.zeros((100,100)), None
+        return frame,np.zeros((INPUT_SIZE[1], INPUT_SIZE[0], 3), dtype = np.uint8), None
 
+# def yolo_detector(frame,CUDA,names_file, INPUT_SIZE = (1280,720)):
+    
+#     CLASSES_TO_DETECT = ['bicycle', 'car', 'motorbike', 'truck']
+    
+#     frame = cv2.resize(frame, INPUT_SIZE, interpolation = cv2.INTER_AREA)
+    
+#     img, coordinates,labels = yolo_output(frame.copy(),yolo_model, CLASSES_TO_DETECT, CUDA, 
+#         inp_dim, names_file, confidence=0.21, nms_thesh=0.41)
+    
+#     closest_vehicle_coord, closest_vehicle_label = get_closest(coordinates, labels)
+#     if closest_vehicle_coord is not None:
+#         x1,x2 = closest_vehicle_coord[1], closest_vehicle_coord[3]
+#         y1,y2 = closest_vehicle_coord[0], closest_vehicle_coord[2]
+#         h_yolo, w_yolo = x2 - x1, y2-y1
+#         img = frame[x1:x1+h_yolo,y1:y1+w_yolo]
+
+#         print((x1,y1), (x2,y2))
+#         cv2.rectangle(frame,(y1,x1), (y2,x2),[0,0,0])
+#         return frame, img, closest_vehicle_label
+    
+#     else:
+#         return np.zeros((100,100)),np.zeros((100,100)), None
 
 def get_closest(box, labels):
     

@@ -55,9 +55,9 @@ if use_cuda:
 size = (1280,720)
 size_digit = (800,800)
 
-cap = cv2.VideoCapture('/home/himanshu/sih_number_plate/1.mp4')
-plate_1_writer = cv2.VideoWriter('plate_2.avi',  cv2.VideoWriter_fourcc(*'MJPG'), 25, size) 
-digit_1_writer = cv2.VideoWriter('digit_2.avi', cv2.VideoWriter_fourcc(*'MJPG'), 25, size_digit) 
+cap = cv2.VideoCapture('/home/himanshu/sih_number_plate/3.mp4')
+plate_1_writer = cv2.VideoWriter('plate_3.avi',  cv2.VideoWriter_fourcc(*'MJPG'), 25, size) 
+digit_1_writer = cv2.VideoWriter('digit_3.avi', cv2.VideoWriter_fourcc(*'MJPG'), 25, size_digit) 
 cap.set(3, 1280)
 cap.set(4, 720)
 
@@ -77,13 +77,13 @@ while True:
 
 	start = time.time()
 
-	vehicle_img, closest_vehicle_label = yolo_detector(img,use_cuda,yolo_vehicle,names_file_yolov3,INPUT_SIZE = (1280,720))
+	img, vehicle_img, closest_vehicle_label = yolo_detector(img,use_cuda,yolo_vehicle,names_file_yolov3,INPUT_SIZE = (1280,720))
 	if closest_vehicle_label is not None:
 		print(closest_vehicle_label)
-
+	print("Image shape after yolov3", img.shape)
 	boxes = do_detect(m, sized, 0.2, 0.6, use_cuda)
 	result_img, cls_conf_plate = plot_boxes_cv2(img, boxes[0],fontScale=0.5,thick=2, 
-				savename=False, class_names=class_names_alpha)
+				savename=False, class_names=class_names)
 	cls_conf_plate = float(cls_conf_plate)
 
 	digit_on_plate = np.zeros((size_digit[0], size_digit[1], 3), dtype = np.uint8)
@@ -93,10 +93,11 @@ while True:
 
 		x1, y1, x2, y2 = find_coordinates(img, boxes[0])
 		plate_bb = img[y1:y2,x1:x2]
+		print(plate_bb.shape)
 		type_vehicle = get_color(plate_bb)
 
 		######### DETECT Digits ############
-		# print(plate_bb.shape)
+		
 		sized = cv2.resize(plate_bb, (m_alpha.width, m_alpha.height))
 		sized = cv2.cvtColor(sized, cv2.COLOR_BGR2RGB)
 		confidence = 0.6
