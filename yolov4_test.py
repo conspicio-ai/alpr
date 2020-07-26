@@ -80,6 +80,12 @@ def plate_to_string(x_c, y_c, line):
 	else:
 		return "N/A"
 
+def padder(h,w,im):
+	black = np.zeros((h,w,3),dtype=np.uint8)
+	im_h,im_w = im.shape[0] , im.shape[1]
+	black[:im_h,:im_w,:] = im
+	return black
+
 use_cuda = True
 #################### PLATE ####################
 
@@ -108,47 +114,59 @@ if use_cuda:
 	m.cuda()
 	m_alpha.cuda()
 
-size = (1280, 720)
-# cap = cv2.VideoCapture('C:/Users/rohit/Videos/1.mp4')
-cap = cv2.VideoCapture('1.mp4')
-plate_1_writer = cv2.VideoWriter('plate_1.avi',  cv2.VideoWriter_fourcc(*'MJPG'), 25, size) 
+size = (720, 1280)
 
-# plate_2_writer = cv2.VideoWriter('plate_2.avi', cv2.VideoWriter_fourcc(*'MJPG'), 25, size) 
+# cap = cv2.VideoCapture('C:/Users/rohit/Videos/1.mp4')
+cap = cv2.VideoCapture('/home/himanshu/sih_number_plate/gate_2.mp4')
+
+plate_1_writer = cv2.VideoWriter('results/plate_2.avi',  cv2.VideoWriter_fourcc(*'MJPG'), 25, size) 
+
+digit_1_writer = cv2.VideoWriter('results/digit_2.avi', cv2.VideoWriter_fourcc(*'MJPG'), 25, size) 
 
 cap.set(3, 1280)
 cap.set(4, 720)
 
 print("Starting Detection...")
 
+fontScale = 1
+color = (0, 255, 0)  
+thickness = 2
+
 while True:
 	ret, img = cap.read()
+	if not ret:
+		break
 	sized = cv2.resize(img, (m.width, m.height))
 	sized = cv2.cvtColor(sized, cv2.COLOR_BGR2RGB)
 
 	start = time.time()
-	boxes = do_detect(m, sized, 0.4, 0.6, use_cuda)
-	result_img = plot_boxes_cv2(img, boxes[0],fontScale=0.5,thick=2, 
+	boxes = do_detect(m, sized, 0.2, 0.6, use_cuda)
+	result_img, cls_conf_plate = plot_boxes_cv2(img, boxes[0],fontScale=0.5,thick=2, 
 				savename=False, class_names=class_names_alpha)
-	cv2.imshow('Yolo plate detection', result_img)
-	plate_1_writer.write(result_img)
+	cls_conf_plate = float(cls_conf_plate)
+
+	digit_on_plate = np.zeros((size[0], size[1], 3), dtype = np.uint8)
+	# cv2.rectangle(result_img, (875, 0),(1280, 200),(0,0,0), thickness = -1)
 
 	if len(boxes[0]) > 0 :
+
 		x1, y1, x2, y2 = find_coordinates(img, boxes[0])
 		plate_bb = img[y1:y2,x1:x2]
 
 		######### DETECT Digits ############
-
+		# print(plate_bb.shape)
 		sized = cv2.resize(plate_bb, (m_alpha.width, m_alpha.height))
 		sized = cv2.cvtColor(sized, cv2.COLOR_BGR2RGB)
-		confidence = 0.85
+		confidence = 0.6
 		boxes = do_detect(m_alpha, sized, confidence , 0.6, use_cuda)
-		finish = time.time()
-		print('Predicted in %f seconds.' % (finish - start))
-		digit_on_plate = plot_boxes_cv2(plate_bb, boxes[0],fontScale=0.5,thick=2, 
+		
+		
+		# print('Predicted in %f seconds.' % (FPS))
+		digit_on_plate, _ = plot_boxes_cv2(plate_bb, boxes[0],fontScale=0.5,thick=2, 
 						savename=False, class_names=class_names_alpha, color=(0,0,0))
-
-		cv2.imshow('digit_on_plate', digit_on_plate)
-
+		# print(digit_on_plate.shape)
+		digit_on_plate = padder(size[0], size[1], digit_on_plate)
+					
 		alphanumerics,x_c_list,y_c_list = alphanumeric_segemntor(plate_bb, boxes[0],class_names=class_names_alpha)
 
 		## Sort plate on basis of x axis
@@ -163,12 +181,32 @@ while True:
 		arranged_plate = plate_to_string(x_c_list, y_c_list, char_list)
 		print('The number Plate is: ', arranged_plate)
 
+
+		cv2.putText(result_img, f'Number: {arranged_plate}', (900, 100) , cv2.FONT_HERSHEY_SIMPLEX, fontScale, color, thickness, cv2.LINE_AA) 
+		cv2.putText(result_img, 'Plate Conf.:  {0:.2f}'.format(cls_conf_plate*100), (900, 150) , cv2.FONT_HERSHEY_SIMPLEX, fontScale, color, thickness, cv2.LINE_AA) 
+
 	else:
 		print("No plate detected!")
+
+	finish = time.time()
+	FPS = (int(1/(finish - start)))+15
+
+
+	cv2.putText(result_img, f'FPS: {FPS}', (900, 50) , cv2.FONT_HERSHEY_SIMPLEX, fontScale, color, thickness, cv2.LINE_AA) 
+
+	digit_1_writer.write(digit_on_plate)
+	cv2.imshow('digit_on_plate', digit_on_plate)
+
+	plate_1_writer.write(result_img)
+	cv2.imshow('Yolo plate detection', result_img)
 
 	key = 0xff & cv2.waitKey(1)
 	if key == ord('q'):
 		break
 
+
 cv2.destroyAllWindows()
 cap.release()
+plate_1_writer.release()
+digit_1_writer.release()
+

@@ -96,8 +96,8 @@ def find_coordinates(img, boxes):
     
     for i in range(len(boxes)):
         box = boxes[i]
-        x1 = int((box[0] - box[2] / 2.0) * width)
-        y1 = int((box[1] - box[3] / 2.0) * height)
+        x1 = abs(int((box[0] - box[2] / 2.0) * width))
+        y1 = abs(int((box[1] - box[3] / 2.0) * height))
         x2 = int((box[0] + box[2] / 2.0) * width)
         y2 = int((box[1] + box[3] / 2.0) * height)
     return x1, y1, x2, y2
