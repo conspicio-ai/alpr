@@ -10,10 +10,11 @@ import numpy as np
 from tool.plateprocessing import find_coordinates, plate_to_string, padder, get_color
 from tool.utils import alphanumeric_segemntor,plot_boxes_cv2
 from tool.torch_utils import *
-
-
+import web_integration as webi
+import time
 
 use_cuda = True
+AuthID = '1544-1242-1878'
 #################### PLATE ####################
 
 cfg_v4 = 'pytorch-YOLOv4-master/cfg/yolo-obj.cfg'
@@ -53,11 +54,11 @@ if use_cuda:
 
 ############# READER/WRITER ##########	
 size = (1280,720)
-size_digit = (800,800)
+size_digit = (1200,1200)
 
-cap = cv2.VideoCapture('/home/himanshu/sih_number_plate/3.mp4')
-plate_1_writer = cv2.VideoWriter('plate_3.avi',  cv2.VideoWriter_fourcc(*'MJPG'), 25, size) 
-digit_1_writer = cv2.VideoWriter('digit_3.avi', cv2.VideoWriter_fourcc(*'MJPG'), 25, size_digit) 
+cap = cv2.VideoCapture('/home/himanshu/sih_number_plate/2.mp4')
+plate_1_writer = cv2.VideoWriter('plate_2.avi',  cv2.VideoWriter_fourcc(*'MJPG'), 25, size) 
+digit_1_writer = cv2.VideoWriter('digit_2.avi', cv2.VideoWriter_fourcc(*'MJPG'), 25, size_digit) 
 cap.set(3, 1280)
 cap.set(4, 720)
 
@@ -80,7 +81,7 @@ while True:
 	img, vehicle_img, closest_vehicle_label = yolo_detector(img,use_cuda,yolo_vehicle,names_file_yolov3,INPUT_SIZE = (1280,720))
 	if closest_vehicle_label is not None:
 		print(closest_vehicle_label)
-	print("Image shape after yolov3", img.shape)
+	# print("Image shape after yolov3", img.shape)
 	boxes = do_detect(m, sized, 0.2, 0.6, use_cuda)
 	result_img, cls_conf_plate = plot_boxes_cv2(img, boxes[0],fontScale=0.5,thick=2, 
 				savename=False, class_names=class_names)
@@ -132,6 +133,19 @@ while True:
 
 	finish = time.time()
 	FPS = (int(1/(finish - start)))+15
+
+	############### Check if car is registered ################
+	registered, visits = webi.pull_data(AuthID, arranged_plate)
+
+	t = time.localtime()
+	time_local = str(t.tm_hour)+':'+str(t.tm_min)
+	# print(time)
+	date_local = str(t.tm_mday) + '/' + str(t.tm_mon)+ '/' + str(t.tm_year)
+	# print(date)
+	time_date = time_local +' '+ date_local
+
+	########### Record Vehicle Data in Database ###############
+	webi.push_data('gate1', 'entry', AuthID, arranged_plate, registered, time_date, closest_vehicle_label, visits)
 
 	cv2.putText(result_img, f'FPS: {FPS}', (900, 50) , cv2.FONT_HERSHEY_SIMPLEX, fontScale, color, thickness, cv2.LINE_AA) 
 
