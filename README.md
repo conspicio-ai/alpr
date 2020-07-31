@@ -6,6 +6,8 @@ For indpeth solutions, features, future works, revenue plan, etc please read the
 
  [Click here](https://drive.google.com/file/d/1vmh-XKHFDTIsHa2YLfEPrvajIMPPD67C/view?usp=sharing)
 
+Note: The below sections are needed to be updated
+
 ### Installation guide for Ubuntu OS
 1. Clone this repository
 2. Change your directory `cd sih_number_plate`
