@@ -71,6 +71,7 @@ thickness = 2
 ########## MAJORITY AND INCREASE FPS ##########
 plate_window = []
 type_window = []
+area_window = []
 window_size = 5 # Mode of the list will be taken for these many samples
 frame_add_interval = 2 # Only the second frame will be read
 window_counter = 0
@@ -111,6 +112,7 @@ while True:
 
 			x1, y1, x2, y2 = find_coordinates(img, boxes[0])
 			plate_bb = img[y1:y2,x1:x2]
+			area_box = abs((y1 - y2) * (x1 - x2))
 			#print(plate_bb.shape)
 			type_vehicle_temp = get_color(plate_bb)
 
@@ -149,6 +151,7 @@ while True:
 				
 			plate_window = plate_window + [arranged_plate_temp]
 			type_window = type_window + [type_vehicle_temp]
+			area_window = area_window + [area_box]
 			
 			if len(plate_window) == window_size:
 				if arranged_plate != max(set(plate_window), key = plate_window.count):
@@ -156,6 +159,11 @@ while True:
 
 				if type_vehicle != max(set(type_window), key = type_window.count):
 					type_vehicle = max(set(type_window), key = type_window.count)
+					
+				if area_window[0] < area_window[-1]:
+					print("ENTERING")
+				else:
+					print("LEAVING")
 					###################### IF number at first remove ###################
 					
 					# for ch in arranged_plate:
@@ -163,6 +171,7 @@ while True:
 					####################################################################
 				plate_window = []
 				type_window = []
+				area_window = []
 
 			cv2.putText(result_img, 'Accuracy:  {0:.2f}'.format(cls_conf_plate*100), (900, 150) , cv2.FONT_HERSHEY_SIMPLEX, fontScale, color, thickness, cv2.LINE_AA) 
 			cv2.putText(result_img, f'Vehicle: {closest_vehicle_label}', (900, 250) , cv2.FONT_HERSHEY_SIMPLEX, fontScale, color, thickness, cv2.LINE_AA)
