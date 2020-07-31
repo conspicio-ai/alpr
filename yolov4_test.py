@@ -78,12 +78,15 @@ started_counter = 0
 ############################
 
 print("Starting Detection...")
+result_img = np.zeros((size[0], size[1], 3), dtype = np.uint8)
+arranged_plate = 'N/A'
+digit_on_plate = np.zeros_like(result_img)
 while True:
 	ret, img = cap.read()
 	frame_counter = frame_counter + 1
 	if not ret:
 		break
-	
+
 	if frame_counter % frame_add_interval == 0:
 		frame_counter = 0
 		sized = cv2.resize(img, (m.width, m.height))
@@ -127,7 +130,7 @@ while True:
 
 			## Sort plate on basis of x axis
 			x_c_sort_idx = np.sort(np.argsort(x_c_list))
-			arranged_plate = ''
+			# arranged_plate = ''
 			char_list = []
 			for count, idx in enumerate(x_c_sort_idx):
 				detected_letter, digit_img = alphanumerics[idx][0], alphanumerics[idx][1]
@@ -135,49 +138,59 @@ while True:
 				char_list = char_list + [detected_letter]
 				#arranged_plate = arranged_plate+detected_letter
 			arranged_plate_temp = plate_to_string(x_c_list, y_c_list, char_list)
+			if arranged_plate_temp[0] in ['0','1','2','3','4','5','6','7','8','9']:
+				arranged_plate_temp = arranged_plate_temp[1:]
 			print('The number Plate is: ', arranged_plate)
 			if started_counter == 0:
 				arranged_plate = arranged_plate_temp
 				started_counter = started_counter + 1
 				
-			plate_window = plate_window + arranged_plate_temp
+			plate_window = plate_window + [arranged_plate_temp]
 			
 			if len(plate_window) == window_size:
 				if arranged_plate != max(set(plate_window), key = plate_window.count):
 					arranged_plate = max(set(plate_window), key = plate_window.count)
+
+					###################### IF number at first remove ###################
+					
+					# for ch in arranged_plate:
+					# 	if 
+					####################################################################
 				plate_window = []
 
-			cv2.putText(result_img, f'Number: {arranged_plate}', (900, 100) , cv2.FONT_HERSHEY_SIMPLEX, fontScale, color, thickness, cv2.LINE_AA) 
 			cv2.putText(result_img, 'Accuracy:  {0:.2f}'.format(cls_conf_plate*100), (900, 150) , cv2.FONT_HERSHEY_SIMPLEX, fontScale, color, thickness, cv2.LINE_AA) 
 			cv2.putText(result_img, f'Vehicle: {closest_vehicle_label}', (900, 250) , cv2.FONT_HERSHEY_SIMPLEX, fontScale, color, thickness, cv2.LINE_AA)
 			cv2.putText(result_img, f'Type: {type_vehicle}', (900, 200) , cv2.FONT_HERSHEY_SIMPLEX, fontScale, color, thickness, cv2.LINE_AA)
+			print("Plate", arranged_plate)
 		else:
 			print("No plate detected!")
+			# arranged_plate = 'N/A'
 
 		finish = time.time()
-		FPS = (int(1/(finish - start)))+15
+		FPS = (int((1.8*frame_add_interval)/(finish - start)))
 
-		############### Check if car is registered ################
-		registered, visits = webi.pull_data(AuthID, arranged_plate)
+		# ############### Check if car is registered ################
+		# registered, visits = webi.pull_data(AuthID, arranged_plate)
 
-		t = time.localtime()
-		time_local = str(t.tm_hour)+':'+str(t.tm_min)
-		# print(time)
-		date_local = str(t.tm_mday) + '/' + str(t.tm_mon)+ '/' + str(t.tm_year)
-		# print(date)
-		time_date = time_local +' '+ date_local
+		# t = time.localtime()
+		# time_local = str(t.tm_hour)+':'+str(t.tm_min)
+		# # print(time)
+		# date_local = str(t.tm_mday) + '/' + str(t.tm_mon)+ '/' + str(t.tm_year)
+		# # print(date)
+		# time_date = time_local +' '+ date_local
 
-		########### Record Vehicle Data in Database ###############
-		webi.push_data('gate1', 'entry', AuthID, arranged_plate, registered, time_date, closest_vehicle_label, visits)
+		# ########### Record Vehicle Data in Database ###############
+		# webi.push_data('gate1', 'entry', AuthID, arranged_plate, registered, time_date, closest_vehicle_label, visits)
 
 		cv2.putText(result_img, f'FPS: {FPS}', (900, 50) , cv2.FONT_HERSHEY_SIMPLEX, fontScale, color, thickness, cv2.LINE_AA) 
+		
+	digit_1_writer.write(digit_on_plate)
+	cv2.imshow('digit_on_plate', digit_on_plate)	
 
+	cv2.putText(result_img, f'Number: {arranged_plate}', (900, 100) , cv2.FONT_HERSHEY_SIMPLEX, fontScale, color, thickness, cv2.LINE_AA) 
 
-		digit_1_writer.write(digit_on_plate)
-		cv2.imshow('digit_on_plate', digit_on_plate)
-
-		plate_1_writer.write(result_img)
-		cv2.imshow('Yolo plate detection', result_img)
+	plate_1_writer.write(result_img)
+	cv2.imshow('Yolo plate detection', result_img)
 
 	key = 0xff & cv2.waitKey(1)
 	if key == ord('q'):
